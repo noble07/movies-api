@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Path, Query
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from typing import Union
 
 
 app = FastAPI(
@@ -10,7 +9,7 @@ app = FastAPI(
 )
 
 class Movie(BaseModel):
-    id: Union[int, None] = None
+    id: int | None = None
     title: str = Field(in_length=6, max_length=15)
     overview: str = Field(in_length=15, max_length=50)
     year: int = Field(le=2022)
@@ -54,15 +53,19 @@ def message():
     return HTMLResponse('<h1>Hellow world</h1>')
 
 @app.get('/movies', tags=['movies'])
-def get_movies():
+def get_movies() -> list[Movie]:
     return movies
 
 @app.get('/movies/{id}', tags=['movies'])
-def get_movie(id: int):
+def get_movie(id: int = Path(ge=1, le=2000)):
     return [movie for movie in movies if movie['id'] == id]
 
+@app.get('/movies/', tags=['movies'])
+def get_movies_by_category(category: str = Query(min_length=5, max_length=15)):
+    return [movie for movie in movies if movie['category'] == category]
+
 @app.post('/movies/', tags=['movies'])
-def create_getmovie(movie: Movie):
+def create_movie(movie: Movie):
     movies.append(movie)
     return movies
 
