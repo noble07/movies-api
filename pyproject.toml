@@ -1,0 +1,4 @@
+[tool.pyright]
+venvPath = "env/bin/"
+venv = "env"
+typeCheckingMode = "off"
